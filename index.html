@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowBoard — Smart Kanban Task Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+</head>
+<body data-theme="light">
+    <div class="app-container">
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <div class="header-left">
+                <h1>🚀 FlowBoard</h1>
+                <span class="header-tagline">Smart Kanban Task Manager</span>
+            </div>
+            <div class="header-actions">
+                <button class="add-task-btn" id="addTaskBtn" title="Add New Task (N)">
+                    <span class="btn-icon">+</span> New Task
+                </button>
+                <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
+                    🌙
+                </button>
+            </div>
+        </header>
+
+        <!-- ===== STATS BAR ===== -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-number" id="statsTotal">0</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statsCompleted">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statsOverdue">0</div>
+                <div class="stat-label">Overdue</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statsRate">0%</div>
+                <div class="stat-label">Done Rate</div>
+            </div>
+        </div>
+
+        <!-- ===== TOOLBAR ===== -->
+        <div class="toolbar">
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput" 
+                    placeholder="Search tasks... (press /)" 
+                    autocomplete="off"
+                >
+            </div>
+            <div class="filter-group">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="high">🔴 High</button>
+                <button class="filter-btn" data-filter="today">📅 Due Today</button>
+                <button class="filter-btn" data-filter="overdue">⚠️ Overdue</button>
+            </div>
+        </div>
+
+        <!-- ===== KANBAN BOARD ===== -->
+        <main class="main-content">
+            <div class="board" id="board">
+                <!-- To Do Column -->
+                <div class="column" data-status="todo">
+                    <div class="column-header">
+                        <div class="column-title-group">
+                            <span class="column-dot dot-todo"></span>
+                            <h2>To Do</h2>
+                        </div>
+                        <span class="task-count" id="countTodo">0</span>
+                    </div>
+                    <div class="tasks-container" id="todoTasks"></div>
+                </div>
+
+                <!-- In Progress Column -->
+                <div class="column" data-status="inprogress">
+                    <div class="column-header">
+                        <div class="column-title-group">
+                            <span class="column-dot dot-inprogress"></span>
+                            <h2>In Progress</h2>
+                        </div>
+                        <span class="task-count" id="countInprogress">0</span>
+                    </div>
+                    <div class="tasks-container" id="inprogressTasks"></div>
+                </div>
+
+                <!-- Done Column -->
+                <div class="column" data-status="done">
+                    <div class="column-header">
+                        <div class="column-title-group">
+                            <span class="column-dot dot-done"></span>
+                            <h2>Done</h2>
+                        </div>
+                        <span class="task-count" id="countDone">0</span>
+                    </div>
+                    <div class="tasks-container" id="doneTasks"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="footer">
+            <p>Built with ❤️ using <strong>Whispr Flow</strong> — Voice-Driven Development</p>
+            <p class="footer-shortcuts">Shortcuts: <kbd>N</kbd> New Task · <kbd>/</kbd> Search · <kbd>Esc</kbd> Close</p>
+        </footer>
+    </div>
+
+    <!-- ===== MODAL ===== -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Task</h2>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="taskForm">
+                    <input type="hidden" id="taskIdInput" value="">
+                    
+                    <div class="form-group">
+                        <label for="taskTitleInput">Task Title *</label>
+                        <input 
+                            type="text" 
+                            id="taskTitleInput" 
+                            placeholder="What needs to be done?" 
+                            required
+                            maxlength="100"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskDescInput">Description</label>
+                        <textarea 
+                            id="taskDescInput" 
+                            placeholder="Add details about this task..." 
+                            rows="3"
+                            maxlength="500"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="taskPriorityInput">Priority</label>
+                            <select id="taskPriorityInput">
+                                <option value="medium">🟡 Medium</option>
+                                <option value="high">🔴 High</option>
+                                <option value="low">🟢 Low</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="taskDueDateInput">Due Date</label>
+                            <input type="date" id="taskDueDateInput">
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="modalCancel">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <span class="btn-icon">+</span> Add Task
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ===== CONFIRMATION DIALOG ===== -->
+    <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-dialog">
+            <div class="confirm-icon">⚠️</div>
+            <h3 id="confirmTitle">Delete Task?</h3>
+            <p id="confirmMessage">This action cannot be undone.</p>
+            <div class="confirm-actions">
+                <button class="btn btn-secondary" id="confirmCancel">Cancel</button>
+                <button class="btn btn-danger" id="confirmOk">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
