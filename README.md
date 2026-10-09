@@ -6,7 +6,15 @@
 [![Built With Wispr Flow](https://img.shields.io/badge/Built%20With-Wispr%20Flow%20(Voice)-6366f1?style=for-the-badge&logo=soundcharts&logoColor=white)](https://ref.wisprflow.ai/hhg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-10b981?style=for-the-badge)](LICENSE)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-0%20(Pure%20Web%20APIs)-f59e0b?style=for-the-badge)](index.html)
-[![Live Status](https://img.shields.io/badge/Status-Production%20Ready-ec4899?style=for-the-badge)]()
+[![Demo Video](https://img.shields.io/badge/Demo%20Video-1080p%20MP4-38bdf8?style=for-the-badge)](FlowBoard_Demo_Video.mp4)
+
+---
+
+<p align="center">
+  <img src="preview_banner.jpg" alt="FlowBoard Live Demo Preview" width="100%" style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+</p>
+
+> 🎬 **Watch the 1080p Demo Video**: [Download or View `FlowBoard_Demo_Video.mp4`](FlowBoard_Demo_Video.mp4) (1m 46s Full HD with studio voiceover)
 
 ---
 
