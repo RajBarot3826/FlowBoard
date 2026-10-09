@@ -3,49 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlowBoard — Smart Kanban Task Manager</title>
+    <title>FlowBoard — Voice-Driven Kanban Suite</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 </head>
 <body data-theme="light">
+    <!-- ===== LIVE VOICE OVERLAY PILL ===== -->
+    <div class="voice-floating-banner" id="voiceBanner" style="display: none;">
+        <div class="voice-pulse-ring"></div>
+        <div class="voice-banner-content">
+            <span class="voice-icon-animated">🎙️</span>
+            <div class="voice-text-wrap">
+                <span class="voice-status-label">Wispr Voice Active</span>
+                <span class="voice-transcript" id="voiceTranscript">Listening... Speak a command</span>
+            </div>
+            <button class="voice-stop-btn" id="voiceStopBtn" title="Stop listening">✕</button>
+        </div>
+    </div>
+
     <div class="app-container">
         <!-- ===== HEADER ===== -->
         <header class="header">
             <div class="header-left">
-                <h1>🚀 FlowBoard</h1>
-                <span class="header-tagline">Smart Kanban Task Manager</span>
+                <div class="brand-row">
+                    <span class="brand-badge">⚡ VOICE POWERED</span>
+                    <h1>FlowBoard</h1>
+                </div>
+                <span class="header-tagline">Intelligent Kanban Suite built with Whispr Flow</span>
             </div>
+
             <div class="header-actions">
-                <button class="add-task-btn" id="addTaskBtn" title="Add New Task (N)">
-                    <span class="btn-icon">+</span> New Task
+                <!-- Voice Assistant Trigger -->
+                <button class="btn-action voice-trigger-btn" id="voiceTriggerBtn" title="Voice Assistant (Press V)">
+                    <span class="mic-wave">🎙️</span>
+                    <span class="btn-text">Voice Control</span>
+                    <kbd>V</kbd>
                 </button>
-                <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
+
+                <!-- Quick Command Palette -->
+                <button class="btn-action" id="cmdPaletteBtn" title="Command Palette (Ctrl+K)">
+                    <span>⌘K</span>
+                </button>
+
+                <!-- Sound Toggle -->
+                <button class="btn-icon-round" id="soundToggleBtn" title="Toggle Sound Effects">
+                    <span id="soundIcon">🔊</span>
+                </button>
+
+                <!-- Activity Log Toggle -->
+                <button class="btn-icon-round" id="historyToggleBtn" title="Activity History (H)">
+                    <span>📜</span>
+                    <span class="badge-dot" id="historyBadgeDot" style="display: none;"></span>
+                </button>
+
+                <!-- Guide / Help -->
+                <button class="btn-icon-round" id="helpBtn" title="Voice & Shortcut Guide (?)">
+                    <span>❓</span>
+                </button>
+
+                <!-- Backup & Export Dropdown -->
+                <div class="dropdown-wrap">
+                    <button class="btn-icon-round" id="backupMenuBtn" title="Export & Backup">
+                        <span>💾</span>
+                    </button>
+                    <div class="dropdown-menu" id="backupDropdown">
+                        <button class="dropdown-item" id="exportJsonBtn">📥 Export JSON Backup</button>
+                        <button class="dropdown-item" id="exportCsvBtn">📊 Export to CSV</button>
+                        <label class="dropdown-item" for="importJsonInput" style="cursor: pointer; margin: 0;">
+                            📤 Import JSON Backup
+                        </label>
+                        <input type="file" id="importJsonInput" accept=".json" style="display: none;">
+                        <hr class="dropdown-divider">
+                        <button class="dropdown-item dropdown-item-danger" id="resetDemoBtn">🔄 Reset to Demo Data</button>
+                    </div>
+                </div>
+
+                <!-- Theme Toggle -->
+                <button class="btn-icon-round theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
                     🌙
+                </button>
+
+                <!-- New Task Primary Button -->
+                <button class="add-task-btn" id="addTaskBtn" title="Add New Task (N)">
+                    <span class="btn-icon">+</span>
+                    <span>New Task</span>
+                    <kbd>N</kbd>
                 </button>
             </div>
         </header>
 
-        <!-- ===== STATS BAR ===== -->
-        <div class="stats-bar">
-            <div class="stat-card">
-                <div class="stat-number" id="statsTotal">0</div>
-                <div class="stat-label">Total Tasks</div>
+        <!-- ===== PROGRESS BAR & STATS ===== -->
+        <section class="overview-section">
+            <div class="progress-card">
+                <div class="progress-header">
+                    <span class="progress-title">Project Sprint Progress</span>
+                    <span class="progress-percentage" id="statsRate">0%</span>
+                </div>
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+                </div>
+                <div class="progress-subtext" id="progressSubtext">0 of 0 tasks completed</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number" id="statsCompleted">0</div>
-                <div class="stat-label">Completed</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="statsOverdue">0</div>
-                <div class="stat-label">Overdue</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="statsRate">0%</div>
-                <div class="stat-label">Done Rate</div>
-            </div>
-        </div>
 
-        <!-- ===== TOOLBAR ===== -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon-wrap icon-total">📋</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="statsTotal">0</div>
+                        <div class="stat-label">Total Tasks</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon-wrap icon-inprogress">⏳</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="statsInProgress">0</div>
+                        <div class="stat-label">In Progress</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon-wrap icon-completed">✅</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="statsCompleted">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon-wrap icon-overdue">⚠️</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="statsOverdue">0</div>
+                        <div class="stat-label">Overdue</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== TOOLBAR (Search, Filters, Tags) ===== -->
         <div class="toolbar">
             <div class="search-wrapper">
                 <span class="search-icon">🔍</span>
@@ -53,15 +145,30 @@
                     type="text" 
                     class="search-input" 
                     id="searchInput" 
-                    placeholder="Search tasks... (press /)" 
+                    placeholder="Search tasks, descriptions, or tags... (press /)" 
                     autocomplete="off"
                 >
+                <button class="search-clear-btn" id="searchClearBtn" style="display: none;">✕</button>
             </div>
+
             <div class="filter-group">
                 <button class="filter-btn active" data-filter="all">All</button>
                 <button class="filter-btn" data-filter="high">🔴 High</button>
-                <button class="filter-btn" data-filter="today">📅 Due Today</button>
+                <button class="filter-btn" data-filter="medium">🟡 Medium</button>
+                <button class="filter-btn" data-filter="low">🟢 Low</button>
+                <button class="filter-btn" data-filter="today">📅 Today</button>
                 <button class="filter-btn" data-filter="overdue">⚠️ Overdue</button>
+            </div>
+
+            <!-- Tag Chips Filter -->
+            <div class="tag-filter-wrap" id="tagFilterWrap">
+                <span class="tag-label">Tags:</span>
+                <button class="tag-chip active" data-tag="all">All</button>
+                <button class="tag-chip" data-tag="Feature">Feature</button>
+                <button class="tag-chip" data-tag="Bug">Bug</button>
+                <button class="tag-chip" data-tag="Design">Design</button>
+                <button class="tag-chip" data-tag="DevOps">DevOps</button>
+                <button class="tag-chip" data-tag="Backend">Backend</button>
             </div>
         </div>
 
@@ -69,7 +176,7 @@
         <main class="main-content">
             <div class="board" id="board">
                 <!-- To Do Column -->
-                <div class="column" data-status="todo">
+                <div class="column" data-status="todo" id="colTodo">
                     <div class="column-header">
                         <div class="column-title-group">
                             <span class="column-dot dot-todo"></span>
@@ -81,7 +188,7 @@
                 </div>
 
                 <!-- In Progress Column -->
-                <div class="column" data-status="inprogress">
+                <div class="column" data-status="inprogress" id="colInprogress">
                     <div class="column-header">
                         <div class="column-title-group">
                             <span class="column-dot dot-inprogress"></span>
@@ -93,7 +200,7 @@
                 </div>
 
                 <!-- Done Column -->
-                <div class="column" data-status="done">
+                <div class="column" data-status="done" id="colDone">
                     <div class="column-header">
                         <div class="column-title-group">
                             <span class="column-dot dot-done"></span>
@@ -108,16 +215,52 @@
 
         <!-- ===== FOOTER ===== -->
         <footer class="footer">
-            <p>Built with ❤️ using <strong>Whispr Flow</strong> — Voice-Driven Development</p>
-            <p class="footer-shortcuts">Shortcuts: <kbd>N</kbd> New Task · <kbd>/</kbd> Search · <kbd>Esc</kbd> Close</p>
+            <div class="footer-inner">
+                <p>Designed & Built with 🎙️ <strong>Whispr Flow</strong> — Voice-Driven Software Engineering</p>
+                <p class="footer-shortcuts">
+                    Hotkeys: <kbd>V</kbd> Voice Command · <kbd>N</kbd> New Task · <kbd>⌘K</kbd> Palette · <kbd>/</kbd> Search · <kbd>H</kbd> History · <kbd>?</kbd> Cheatsheet
+                </p>
+            </div>
         </footer>
     </div>
 
-    <!-- ===== MODAL ===== -->
+    <!-- ===== ACTIVITY LOG DRAWER ===== -->
+    <aside class="activity-drawer" id="activityDrawer">
+        <div class="drawer-header">
+            <h3>📜 Activity History</h3>
+            <div class="drawer-actions">
+                <button class="btn-text-sm" id="clearHistoryBtn">Clear</button>
+                <button class="btn-icon-sm" id="closeDrawerBtn">✕</button>
+            </div>
+        </div>
+        <div class="drawer-body" id="activityList">
+            <!-- Activities injected dynamically -->
+        </div>
+    </aside>
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+    <!-- ===== COMMAND PALETTE MODAL (⌘K) ===== -->
+    <div class="modal-overlay" id="paletteOverlay">
+        <div class="palette-modal">
+            <div class="palette-search-row">
+                <span class="palette-icon">⚡</span>
+                <input type="text" class="palette-input" id="paletteInput" placeholder="Type a command or action... (e.g. 'new task', 'dark mode', 'filter high')" autofocus>
+                <kbd class="palette-esc">Esc</kbd>
+            </div>
+            <div class="palette-results" id="paletteResults">
+                <!-- Command list populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TASK CREATE / EDIT MODAL ===== -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <div class="modal-header">
-                <h2 id="modalTitle">Add New Task</h2>
+                <div class="modal-title-wrap">
+                    <h2 id="modalTitle">Add New Task</h2>
+                    <span class="modal-sub">Speak or type details</span>
+                </div>
                 <button class="modal-close" id="modalClose">&times;</button>
             </div>
             <div class="modal-body">
@@ -126,32 +269,38 @@
                     
                     <div class="form-group">
                         <label for="taskTitleInput">Task Title *</label>
-                        <input 
-                            type="text" 
-                            id="taskTitleInput" 
-                            placeholder="What needs to be done?" 
-                            required
-                            maxlength="100"
-                        >
+                        <div class="input-with-mic">
+                            <input 
+                                type="text" 
+                                id="taskTitleInput" 
+                                placeholder="e.g. Implement OAuth2 login flow" 
+                                required
+                                maxlength="120"
+                            >
+                            <button type="button" class="field-mic-btn" data-target="taskTitleInput" title="Dictate title">🎙️</button>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="taskDescInput">Description</label>
-                        <textarea 
-                            id="taskDescInput" 
-                            placeholder="Add details about this task..." 
-                            rows="3"
-                            maxlength="500"
-                        ></textarea>
+                        <div class="input-with-mic">
+                            <textarea 
+                                id="taskDescInput" 
+                                placeholder="Describe acceptance criteria or technical notes..." 
+                                rows="3"
+                                maxlength="600"
+                            ></textarea>
+                            <button type="button" class="field-mic-btn field-mic-textarea" data-target="taskDescInput" title="Dictate description">🎙️</button>
+                        </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label for="taskPriorityInput">Priority</label>
                             <select id="taskPriorityInput">
-                                <option value="medium">🟡 Medium</option>
-                                <option value="high">🔴 High</option>
-                                <option value="low">🟢 Low</option>
+                                <option value="medium">🟡 Medium Priority</option>
+                                <option value="high">🔴 High Priority</option>
+                                <option value="low">🟢 Low Priority</option>
                             </select>
                         </div>
 
@@ -161,10 +310,22 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label>Tag / Category</label>
+                        <div class="tag-selector" id="tagSelector">
+                            <label class="tag-option"><input type="radio" name="taskTag" value="Feature" checked> <span>✨ Feature</span></label>
+                            <label class="tag-option"><input type="radio" name="taskTag" value="Bug"> <span>🐛 Bug</span></label>
+                            <label class="tag-option"><input type="radio" name="taskTag" value="Design"> <span>🎨 Design</span></label>
+                            <label class="tag-option"><input type="radio" name="taskTag" value="DevOps"> <span>🚀 DevOps</span></label>
+                            <label class="tag-option"><input type="radio" name="taskTag" value="Backend"> <span>⚙️ Backend</span></label>
+                        </div>
+                    </div>
+
                     <div class="modal-actions">
                         <button type="button" class="btn btn-secondary" id="modalCancel">Cancel</button>
                         <button type="submit" class="btn btn-primary" id="submitBtn">
-                            <span class="btn-icon">+</span> Add Task
+                            <span class="btn-icon">+</span>
+                            <span>Add Task</span>
                         </button>
                     </div>
                 </form>
@@ -172,8 +333,72 @@
         </div>
     </div>
 
-    <!-- ===== TOAST CONTAINER ===== -->
-    <div class="toast-container" id="toastContainer"></div>
+    <!-- ===== VOICE & SHORTCUT GUIDE MODAL ===== -->
+    <div class="modal-overlay" id="guideOverlay">
+        <div class="modal modal-wide">
+            <div class="modal-header">
+                <h2>🎙️ Voice Commands & Hotkeys Guide</h2>
+                <button class="modal-close" id="guideClose">&times;</button>
+            </div>
+            <div class="modal-body guide-content">
+                <div class="guide-section">
+                    <h3>⚡ Voice Commands (Press 'V' to Activate)</h3>
+                    <p class="guide-intro">FlowBoard comes with native speech recognition. Speak any of these commands naturally:</p>
+                    <table class="guide-table">
+                        <thead>
+                            <tr>
+                                <th>Say Something Like...</th>
+                                <th>Action Performed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>"Create task build user profile due tomorrow"</code></td>
+                                <td>Adds a new task with automatic date parsing</td>
+                            </tr>
+                            <tr>
+                                <td><code>"Add high priority task fix memory leak"</code></td>
+                                <td>Creates a task tagged with High Priority</td>
+                            </tr>
+                            <tr>
+                                <td><code>"Search authentication"</code></td>
+                                <td>Filters board in real-time</td>
+                            </tr>
+                            <tr>
+                                <td><code>"Filter high priority"</code> / <code>"Filter overdue"</code></td>
+                                <td>Applies priority or date filters</td>
+                            </tr>
+                            <tr>
+                                <td><code>"Switch to dark mode"</code> / <code>"Light mode"</code></td>
+                                <td>Changes UI color theme</td>
+                            </tr>
+                            <tr>
+                                <td><code>"Export backup"</code></td>
+                                <td>Triggers JSON backup download</td>
+                            </tr>
+                            <tr>
+                                <td><code>"Clear filter"</code> / <code>"Show all"</code></td>
+                                <td>Resets search and active filters</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="guide-section">
+                    <h3>⌨️ Keyboard Shortcuts</h3>
+                    <div class="shortcuts-grid">
+                        <div class="shortcut-item"><kbd>V</kbd><span>Activate Voice Assistant</span></div>
+                        <div class="shortcut-item"><kbd>N</kbd><span>Open New Task Modal</span></div>
+                        <div class="shortcut-item"><kbd>⌘K</kbd> or <kbd>Ctrl+K</kbd><span>Command Palette</span></div>
+                        <div class="shortcut-item"><kbd>/</kbd><span>Focus Search Bar</span></div>
+                        <div class="shortcut-item"><kbd>H</kbd><span>Open Activity History</span></div>
+                        <div class="shortcut-item"><kbd>?</kbd><span>Open this Guide</span></div>
+                        <div class="shortcut-item"><kbd>Esc</kbd><span>Close any Modal / Cancel</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ===== CONFIRMATION DIALOG ===== -->
     <div class="confirm-overlay" id="confirmOverlay">
@@ -187,6 +412,9 @@
             </div>
         </div>
     </div>
+
+    <!-- ===== TOAST CONTAINER ===== -->
+    <div class="toast-container" id="toastContainer"></div>
 
     <script src="app.js"></script>
 </body>
